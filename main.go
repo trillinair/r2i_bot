@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"github.com/fogleman/gg"
 	"github.com/golang/freetype/truetype"
 	"image"
@@ -77,7 +76,6 @@ func AdjustPoints(err, points float64) float64 {
 }
 
 func SetBestFontFace(dc *gg.Context, s string, lineHeight, h, w float64) {
-	fmt.Printf("\n\nString Length: %d\n\n", len(s))
 	points := float64(40)
 	prev := points
 	count := 0
@@ -89,7 +87,6 @@ func SetBestFontFace(dc *gg.Context, s string, lineHeight, h, w float64) {
 		wrappedHeight := fontHeight * lineHeight * nLines
 		err := wrappedHeight - h
 		if err <= 0 {
-			fmt.Printf("count: %d, points: %f, err %f\n", count, points, err)
 			SetFontFace(dc, prev)
 			break
 		}
