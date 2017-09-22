@@ -5,10 +5,30 @@ import (
 	"fmt"
 	"github.com/fogleman/gg"
 	"io"
+	"log"
+	"math/rand"
 	"os"
+	"time"
 )
 
+func init() {
+	rand.Seed(time.Now().Unix())
+}
+
 func main() {
+	ss, err := GetSubmissions("UnethicalLifeProTips")
+	if err != nil {
+		log.Fatal(err)
+	}
+	i := rand.Intn(len(ss))
+	im, err := MakeImage(ss[i].Title)
+	if err != nil {
+		log.Fatal(err)
+	}
+	gg.SavePNG("out.png", im)
+}
+
+func GenerateImages() {
 	titles, err := ReadTitles("titles.txt")
 	if err != nil {
 		panic(err)
