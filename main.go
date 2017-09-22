@@ -9,6 +9,7 @@ import (
 	"image/color"
 	"io"
 	"io/ioutil"
+	"math"
 	"os"
 )
 
@@ -30,13 +31,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	for i, title := range titles {
-		im, err := MakeImage(title)
+	for _, title := range titles {
+		_, err := MakeImage(title)
 		if err != nil {
 			panic(err)
 		}
-		fname := fmt.Sprintf("out%d.png", i)
-		gg.SavePNG(fname, im)
+		// fname := fmt.Sprintf("out%d.png", i)
+		// gg.SavePNG(fname, im)
 	}
 }
 
@@ -69,20 +70,32 @@ func SetFontFace(dc *gg.Context, points float64) {
 	)
 }
 
+func AdjustPoints(err, points float64) float64 {
+	const limit = 1000
+	const speed = 5
+	return points - math.Max(((math.Min(limit, err)/limit)*speed), 0.001)
+}
+
 func SetBestFontFace(dc *gg.Context, s string, lineHeight, h, w float64) {
+	fmt.Printf("\n\nString Length: %d\n\n", len(s))
 	points := float64(40)
+	prev := points
+	count := 0
 	for {
+		count++
 		SetFontFace(dc, points)
 		_, fontHeight := dc.MeasureString(s)
 		nLines := float64(len(dc.WordWrap(s, w)))
 		wrappedHeight := fontHeight * lineHeight * nLines
-		if wrappedHeight < h {
-			fmt.Printf("difference", wrappedHeight-h)
+		err := wrappedHeight - h
+		if err <= 0 {
+			fmt.Printf("count: %d, points: %f, err %f\n", count, points, err)
+			SetFontFace(dc, prev)
 			break
 		}
-		points--
+		prev = points
+		points = AdjustPoints(err, points)
 	}
-	SetFontFace(dc, points)
 }
 
 func MakeImage(text string) (image.Image, error) {
