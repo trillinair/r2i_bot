@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/fogleman/gg"
 	"github.com/golang/freetype/truetype"
 	"image"
@@ -15,7 +16,7 @@ import (
 var font *truetype.Font
 
 func init() {
-	data, err := ioutil.ReadFile("/Library/Fonts/Arial.ttf")
+	data, err := ioutil.ReadFile("trade-gothic-bold-condensed-20.ttf")
 	if err != nil {
 		panic(err)
 	}
@@ -30,13 +31,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	for _, title := range titles {
-		_, err := MakeImage(title)
+	for i, title := range titles {
+		im, err := MakeImage(title)
 		if err != nil {
 			panic(err)
 		}
-		// fname := fmt.Sprintf("out%d.png", i)
-		// gg.SavePNG(fname, im)
+		fname := fmt.Sprintf("out%d.png", i)
+		gg.SavePNG(fname, im)
 	}
 }
 
@@ -78,9 +79,7 @@ func AdjustPoints(err, points float64) float64 {
 func SetBestFontFace(dc *gg.Context, s string, lineHeight, h, w float64) {
 	points := float64(40)
 	prev := points
-	count := 0
 	for {
-		count++
 		SetFontFace(dc, points)
 		_, fontHeight := dc.MeasureString(s)
 		nLines := float64(len(dc.WordWrap(s, w)))
@@ -96,8 +95,8 @@ func SetBestFontFace(dc *gg.Context, s string, lineHeight, h, w float64) {
 }
 
 func MakeImage(text string) (image.Image, error) {
-	const W = 300
-	const H = 300
+	const W = 612
+	const H = 612
 	const P = 16
 	const LH = 1.75
 	dc := gg.NewContext(W, H)
