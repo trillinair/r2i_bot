@@ -76,7 +76,7 @@ func AdjustPoints(err, points float64) float64 {
 	return points - math.Max(((math.Min(limit, err)/limit)*speed), 0.001)
 }
 
-func SetBestFontFace(dc *gg.Context, s string, lineHeight, h, w float64) {
+func SetBestFontFace(dc *gg.Context, s string, lineHeight, h, w float64) float64 {
 	points := float64(40)
 	prev := points
 	for {
@@ -87,7 +87,7 @@ func SetBestFontFace(dc *gg.Context, s string, lineHeight, h, w float64) {
 		err := wrappedHeight - h
 		if err <= 0 {
 			SetFontFace(dc, prev)
-			break
+			return wrappedHeight
 		}
 		prev = points
 		points = AdjustPoints(err, points)
@@ -107,7 +107,12 @@ func MakeImage(text string) (image.Image, error) {
 	dc.SetLineWidth(8)
 	dc.Stroke()
 	dc.Height()
-	SetBestFontFace(dc, text, LH, H-P-P-P-P, W-P-P-P-P)
-	dc.DrawStringWrapped(text, P+P, P+P, 0, 0, W-P-P-P-P, LH, gg.AlignCenter)
+
+	textHeight := float64(H - P - P - P - P)
+	textWidth := float64(W - P - P - P - P)
+	actualTextHeight := SetBestFontFace(dc, text, LH, textHeight, textWidth)
+	offset := (textHeight - actualTextHeight) / 2
+
+	dc.DrawStringWrapped(text, P+P, P+P+offset, 0, 0, textWidth, LH, gg.AlignCenter)
 	return dc.Image(), nil
 }
