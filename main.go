@@ -10,7 +10,9 @@ import (
 	"io"
 	"io/ioutil"
 	"math"
+	"math/rand"
 	"os"
+	"time"
 )
 
 var font *truetype.Font
@@ -24,6 +26,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	rand.Seed(time.Now().Unix())
 }
 
 func main() {
