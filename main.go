@@ -2,29 +2,27 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/fogleman/gg"
 	"image"
 	"image/color"
 	"io"
-	"math/rand"
 	"os"
-	"time"
 )
-
-const TEXT = "ULPT: get a free hotel room from AirBnB by booking a location then calling customer service and telling them that it's 10-12 miles away from the town that you specifically searched for. They'll cancel it, free of charge, then put you up in a hotel closer to where you wanted to be."
 
 func main() {
 	titles, err := ReadTitles("titles.txt")
 	if err != nil {
 		panic(err)
 	}
-	rand.Seed(time.Now().UTC().UnixNano())
-	i := rand.Intn(len(titles))
-	im, err := MakeImage(titles[i])
-	if err != nil {
-		panic(err)
+	for i, title := range titles {
+		im, err := MakeImage(title)
+		if err != nil {
+			panic(err)
+		}
+		fname := fmt.Sprintf("out%d.png", i)
+		gg.SavePNG(fname, im)
 	}
-	gg.SavePNG("out.png", im)
 }
 
 func ReadTitles(filename string) ([]string, error) {
