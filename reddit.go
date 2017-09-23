@@ -58,6 +58,18 @@ type Submission struct {
 	// link_flair_text ?
 }
 
+type ByScore []Submission
+
+func (s ByScore) Len() int {
+	return len(s)
+}
+func (s ByScore) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s ByScore) Less(i, j int) bool {
+	return s[i].Score > s[j].Score
+}
+
 func GetSubmissions(subreddit string) ([]Submission, error) {
 	url := fmt.Sprintf("https://reddit.com/r/%s.json", subreddit)
 	req, err := http.NewRequest("GET", url, nil)

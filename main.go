@@ -9,6 +9,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"sort"
 	"time"
 )
 
@@ -35,8 +36,8 @@ func DoPost() error {
 	if err != nil {
 		return err
 	}
-	for _, i := range rand.Perm(len(ss)) {
-		s := ss[i]
+	sort.Sort(ByScore(ss))
+	for _, s := range ss {
 		used, err := IsUsed(s.Id)
 		if err != nil {
 			return err
@@ -51,7 +52,7 @@ func DoPost() error {
 		if err := MarkUsed(s.Id, s.Title); err != nil {
 			return nil
 		}
-		fmt.Println(s.Title)
+		fmt.Printf("%d: %s\n", s.Score, s.Title)
 		if err := SaveJPEG(im, "out.jpeg"); err != nil {
 			return err
 		}
