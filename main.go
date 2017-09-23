@@ -20,12 +20,25 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	i := rand.Intn(len(ss))
-	im, err := MakeImage(ss[i].Title)
-	if err != nil {
-		log.Fatal(err)
+	for _, i := range rand.Perm(len(ss)) {
+		s := ss[i]
+		used, err := IsUsed(s.Id)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if !used {
+			im, err := MakeImage(s.Title)
+			if err != nil {
+				log.Fatal(err)
+			}
+			if err := MarkUsed(s.Id, s.Title); err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println(s.Title)
+			gg.SavePNG("out.png", im)
+			break
+		}
 	}
-	gg.SavePNG("out.png", im)
 }
 
 func GenerateImages() {

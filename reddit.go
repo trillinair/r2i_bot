@@ -60,7 +60,9 @@ type Submission struct {
 
 func GetSubmissions(subreddit string) ([]Submission, error) {
 	url := fmt.Sprintf("https://reddit.com/r/%s.json", subreddit)
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	req.Header.Set("User-Agent", "Ilia's Awesome Bot/1.0")
+	resp, err := new(http.Client).Do(req)
 	if err != nil {
 		return nil, err
 	}
