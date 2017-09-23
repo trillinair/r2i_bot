@@ -1,11 +1,20 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"github.com/ahmdrz/goinsta"
 	"github.com/fogleman/gg"
 	"log"
 	"math/rand"
 	"time"
+)
+
+var (
+	subreddit = flag.String("sub", "UnethicalLifeProTips", "The Subreddit to pull from")
+	username  = flag.String("username", "unethicallifeprotips", "Instagram Username")
+	password  = flag.String("password", "", "Instagram Password")
+	caption   = flag.String("caption", "#ULPT", "The post caption")
 )
 
 func init() {
@@ -19,7 +28,7 @@ func main() {
 }
 
 func DoPost() error {
-	ss, err := GetSubmissions("UnethicalLifeProTips")
+	ss, err := GetSubmissions(*subreddit)
 	if err != nil {
 		return err
 	}
@@ -40,8 +49,26 @@ func DoPost() error {
 			return nil
 		}
 		fmt.Println(s.Title)
-		gg.SavePNG("out.png", im)
-		return nil
+		if err := gg.SavePNG("out.png", im); err != nil {
+			return err
+		}
+		return PostImage("out.png")
 	}
 	return fmt.Errorf("all %d submissions are used", len(ss))
+}
+
+func PostImage(imgpath string) error {
+	insta := goinsta.New(*username, *password)
+	if err := insta.Login(); err != nil {
+		return fmt.Errorf("failed to login: %s", err)
+	}
+	defer insta.Logout()
+	resp, err := insta.UploadPhoto(imgpath, *caption, insta.NewUploadID(), 87, 0)
+	if err != nil {
+		return fmt.Errorf("failed to upload:", err)
+	}
+	if resp.Status != "ok" {
+		return fmt.Errorf("invalid response: %s", resp.Status)
+	}
+	return nil
 }
