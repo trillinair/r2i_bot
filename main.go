@@ -13,27 +13,35 @@ func init() {
 }
 
 func main() {
+	if err := DoPost(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func DoPost() error {
 	ss, err := GetSubmissions("UnethicalLifeProTips")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	for _, i := range rand.Perm(len(ss)) {
 		s := ss[i]
 		used, err := IsUsed(s.Id)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
-		if !used {
-			im, err := MakeImage(s.Title)
-			if err != nil {
-				log.Fatal(err)
-			}
-			if err := MarkUsed(s.Id, s.Title); err != nil {
-				log.Fatal(err)
-			}
-			fmt.Println(s.Title)
-			gg.SavePNG("out.png", im)
-			break
+		if used {
+			continue
 		}
+		im, err := MakeImage(s.Title)
+		if err != nil {
+			return err
+		}
+		if err := MarkUsed(s.Id, s.Title); err != nil {
+			return nil
+		}
+		fmt.Println(s.Title)
+		gg.SavePNG("out.png", im)
+		return nil
 	}
+	return fmt.Errorf("all %d submissions are used", len(ss))
 }
