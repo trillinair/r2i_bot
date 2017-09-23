@@ -4,9 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"github.com/ahmdrz/goinsta"
-	"github.com/fogleman/gg"
+	"image"
+	"image/jpeg"
 	"log"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -14,11 +16,12 @@ var (
 	subreddit = flag.String("sub", "UnethicalLifeProTips", "The Subreddit to pull from")
 	username  = flag.String("username", "unethicallifeprotips", "Instagram Username")
 	password  = flag.String("password", "", "Instagram Password")
-	caption   = flag.String("caption", "#ULPT", "The post caption")
+	caption   = flag.String("caption", "#LPT", "The post caption")
 )
 
 func init() {
 	rand.Seed(time.Now().Unix())
+	flag.Parse()
 }
 
 func main() {
@@ -49,12 +52,21 @@ func DoPost() error {
 			return nil
 		}
 		fmt.Println(s.Title)
-		if err := gg.SavePNG("out.png", im); err != nil {
+		if err := SaveJPEG(im, "out.jpeg"); err != nil {
 			return err
 		}
-		return PostImage("out.png")
+		return PostImage("out.jpeg")
 	}
 	return fmt.Errorf("all %d submissions are used", len(ss))
+}
+
+func SaveJPEG(m image.Image, filename string) error {
+	f, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	return jpeg.Encode(f, m, &jpeg.Options{jpeg.DefaultQuality})
 }
 
 func PostImage(imgpath string) error {
